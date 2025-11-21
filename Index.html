@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LOMUVYA — متجر المنتجات الرقمية</title>
+
+<!-- خطوط -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1: #0b1020;
+    --bg2: #151a2b;
+    --muted: rgba(255,255,255,0.9);
+    --gold: #d4af37;
+    --accent: #6f7cff;
+    --card: rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family: 'Amiri', serif;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:var(--muted);
+    padding:16px;
+    direction:rtl;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1100px;margin:0 auto}
+
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:64px;height:64px;border-radius:14px;
+    background:linear-gradient(135deg,#0f1730,#12162d);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:28px;color:var(--gold);
+    box-shadow: 0 12px 30px rgba(2,6,18,0.7);
+    cursor:pointer;user-select:none;
+  }
+  .site-title{font-family:'Cairo',sans-serif;font-weight:700;margin:0;color:var(--muted)}
+  .site-sub{margin:0;font-size:13px;color:rgba(255,255,255,0.75)}
+
+  .controls{display:flex;align-items:center;gap:8px}
+  .search{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:var(--card);min-width:200px}
+  .search input{background:transparent;border:0;outline:none;color:var(--muted);font-size:15px;width:150px}
+  .icon-btn{background:transparent;border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;color:var(--muted)}
+  .primary{background:linear-gradient(90deg,var(--gold),#f0c85a);color:#08111a;padding:9px 12px;border-radius:12px;font-weight:700;cursor:pointer;border:0}
+
+  .hero{display:flex;gap:16px;margin-top:18px;align-items:stretch}
+  .hero-card{flex:1;padding:18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 50px rgba(2,6,18,0.6)}
+  .hero-title{font-family:'Cairo',sans-serif;font-size:26px;color:var(--gold);margin:0}
+  .hero-desc{margin-top:8px;font-size:15px;color:rgba(255,255,255,0.8)}
+
+  main{display:grid;grid-template-columns:260px 1fr;gap:16px;margin-top:18px}
+  @media (max-width:980px){ main{grid-template-columns:1fr} .search input{width:100px} }
+
+  aside{background:var(--card);padding:14px;border-radius:12px;backdrop-filter:blur(4px)}
+  .cat-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+
+  .products{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:1100px){ .products{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:640px){ .products{grid-template-columns:1fr} }
+
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
+  .card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,0.55)}
+  .card img{width:100%;height:170px;object-fit:cover}
+  .card .body{padding:12px;flex:1;display:flex;flex-direction:column;gap:8px}
+  .card h3{margin:0;font-size:18px;font-family:'Cairo',sans-serif;color:var(--gold)}
+  .meta{font-size:13px;color:rgba(255,255,255,0.75)}
+  .actions{display:flex;gap:8px;margin-top:auto}
+
+  .cart-drawer{position:fixed;left:12px;bottom:12px;background:linear-gradient(180deg,#071022,#0b1324);padding:12px;border-radius:12px;color:var(--muted);box-shadow:0 12px 40px rgba(0,0,0,0.6);width:320px;max-width:92%;display:none;flex-direction:column;gap:8px;z-index:9999}
+  .cart-drawer.show{display:flex}
+  .cart-item{display:flex;gap:10px;align-items:center}
+  .cart-item img{width:56px;height:44px;object-fit:cover;border-radius:8px}
+  .cart-total{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:var(--gold)}
+
+  .admin-modal{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:99999}
+  .admin-modal.show{display:flex}
+  .admin-box{background:linear-gradient(180deg,#0e1624,#0b1119);padding:18px;border-radius:12px;color:var(--muted);width:100%;max-width:720px}
+
+  input,textarea{font-family:'Amiri';}
+  footer{margin-top:18px;text-align:center;color:rgba(255,255,255,0.6);font-size:13px;padding-bottom:20px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand" role="banner">
+        <div class="logo" id="logo" title="اضغط 5 مرات لفتح لوحة الإدارة">L</div>
+        <div>
+          <div class="site-title">LOMUVYA</div>
+          <div class="site-sub">متجر المنتجات الرقمية — قوالب، كتب، ملفات</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="11" cy="11" r="6" stroke="white" stroke-width="1.4"/></svg>
+          <input id="search" placeholder="ابحث عن منتج أو وصف..." aria-label="بحث"/>
+        </div>
+        <button class="icon-btn" id="openCartBtn" aria-label="عربة">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M3 3h2l.4 2M7 13h10l4-8H5.4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="primary" id="sellBtn">إضافة منتج (أنت)</button>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-card">
+        <h2 id="heroTitle" class="hero-title">متجر منتجات رقمية فخم — Loumvya</h2>
+        <p class="hero-desc">قوالب، قوالب HTML، كتب إلكترونية، ملفات جاهزة — كل ما تحتاجه لمشاريعك الرقمية. تصميم عصري وسهل الاستخدام.</p>
+        <div class="hero-cta">
+          <button class="primary" onclick="document.getElementById('search').focus()">تصفح الآن</button>
+          <a class="muted2" href="#products" style="color:rgba(255,255,255,0.8);text-decoration:none;margin-left:10px">عرض المنتجات »</a>
+        </div>
+      </div>
+      <div style="width:320px;background:linear-gradient(180deg,#071026,#091226);padding:14px;border-radius:12px;box-shadow:0 12px 30px rgba(2,6,18,0.6)">
+        <h4 style="margin:0 0 8px 0;color:var(--gold);font-family:'Cairo',sans-serif">عروض مميزة</h4>
+        <div id="slider" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </section>
+
+    <main id="mainContent">
+      <aside>
+        <h4>التصنيفات</h4>
+        <div class="cat-list" id="cats"></div>
+        <div style="margin-top:12px" class="muted2">عدد المنتجات: <strong id="prodCount">0</strong></div>
+        <div style="margin-top:12px">
+          <button class="icon-btn" id="clearBtn">مسح البيانات المحلية</button>
+        </div>
+      </aside>
+
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0;color:var(--gold);font-family:'Cairo',sans-serif">المنتجات</h3>
+          <div class="muted2">نتائج البحث: <span id="resultCount">0</span></div>
+        </div>
+
+        <div id="products" class="products" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer>© <span id="year"></span> Loumvya — متجر رقمي</footer>
+  </div>
+
+  <div class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong>عربة التسوق</strong>
+      <button class="icon-btn" id="closeCart">إغلاق</button>
+    </div>
+    <div id="cartItems" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+    <div class="cart-total" style="margin-top:8px">
+      <div>المجموع</div>
+      <div id="cartTotal">0$</div>
+    </div>
+    <button class="primary" id="checkout">إتمام الطلب</button>
+    <div class="muted2" style="margin-top:8px">الطلبات محفوظة محلياً في هذا الإصدار التجريبي</div>
+  </div>
+
+  <div class="admin-modal" id="adminModal" aria-hidden="true">
+    <div class="admin-box" role="dialog" aria-modal="true">
+      <h3 style="margin-top:0">لوحة إدارة Loumvya</h3>
+      <p class="muted2">خاصة بك فقط — أضف أو احذف المنتجات من هنا</p>
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="admTitle" placeholder="عنوان المنتج" style="flex:2;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted)"/>
+        <input id="admPrice" placeholder="السعر (USD)" style="width:110px;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted)"/>
+      </div>
+      <input id="admCover" placeholder="رابط صورة الغلاف" style="margin-top:8px;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted)"/>
+      <input id="admFile" placeholder="رابط الملف (PDF/ZIP/...)" style="margin-top:8px;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted)"/>
+      <textarea id="admDesc" placeholder="وصف قصير" rows="3" style="margin-top:8px;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.02);color:var(--muted)"></textarea>
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="primary" id="admAdd">إضافة منتج</button>
+        <button class="icon-btn" id="admClose">إغلاق</button>
+      </div>
+
+      <div id="admList" style="margin-top:12px;max-height:220px;overflow:auto"></div>
+    </div>
+  </div>
+
+<script>
+/* ====== بيانات أساسية ومحلية (مُصلّح وكامل) ====== */
+(function(){
+  'use strict';
+
+  // تخزين محلي آمن
+  let storage;
+  try { storage = window.localStorage; } catch(e) { storage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} }; }
+
+  // عينات منتجات ابتدائية
+  const sampleProducts = [
+    { id: 1, title: "قالب متجر حديث HTML", price: 12.0, category: "قوالب", cover: "https://picsum.photos/seed/p1/800/500", file: "#", desc: "قالب HTML نظيف وسهل التخصيص." },
+    { id: 2, title: "دليل الربح من الانترنت", price: 8.5, category: "كتب", cover: "https://picsum.photos/seed/p2/800/500", file: "#", desc: "دليل عملي لبدء عمل رقمي ناجح." },
+    { id: 3, title: "سورس تطبيق بسيط", price: 15.0, category: "برمجة", cover: "https://picsum.photos/seed/p3/800/500", file: "#", desc: "سورس جاهز يمكن تعديله بسهولة." },
+    { id: 4, title: "مجموعة أيقونات SVG", price: 6.0, category: "تصاميم", cover: "https://picsum.photos/seed/p4/800/500", file: "#", desc: "أيقونات عالية الجودة جاهزة للاستخدام." }
+  ];
+
+  // حالة التطبيق (محلياً)
+  let products = [];
+  let cart = [];
+  let orders = [];
+
+  // DOM عناصر (كلها موجودة في الصفحة)
+  const productsEl = document.getElementById('products');
+  const catsEl = document.getElementById('cats');
+  const prodCountEl = document.getElementById('prodCount');
+  const resultCountEl = document.getElementById('resultCount');
+  const searchEl = document.getElementById('search');
+  const sliderEl = document.getElementById('slider');
+  const yearEl = document.getElementById('year');
+
+  const cartDrawer = document.getElementById('cartDrawer');
+  const cartItemsEl = document.getElementById('cartItems');
+  const cartTotalEl = document.getElementById('cartTotal');
+  const openCartBtn = document.getElementById('openCartBtn');
+  const closeCartBtn = document.getElementById('closeCart');
+
+  const sellBtn = document.getElementById('sellBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  const adminModal = document.getElementById('adminModal');
+  const admAdd = document.getElementById('admAdd');
+  const admClose = document.getElementById('admClose');
+  const admList = document.getElementById('admList');
+
+  const logo = document.getElementById('logo');
+
+  // تحميل الحالة من localStorage أو استخدام القيم الابتدائية بأمان
+  function loadState(){
+    try {
+      const p = storage.getItem('l_products');
+      const c = storage.getItem('l_cart');
+      const o = storage.getItem('l_orders');
+      products = p ? JSON.parse(p) : sampleProducts.slice();
+      cart = c ? JSON.parse(c) : [];
+      orders = o ? JSON.parse(o) : [];
+    } catch(e){
+      // في حالة خطأ أثناء القراءة نعيد القيم الابتدائية
+      products = sampleProducts.slice();
+      cart = [];
+      orders = [];
+    }
+  }
+
+  function saveState(){
+    try {
+      storage.setItem('l_products', JSON.stringify(products));
+      storage.setItem('l_cart', JSON.stringify(cart));
+      storage.setItem('l_orders', JSON.stringify(orders));
+    } catch(e){
+      // لا نفشل إن فشل التخزين
+      console.warn('تعذر حفظ الحالة محليًا', e);
+    }
+  }
+
+  // حماية نصية بسيطة للعرض في HTML
+  function escapeHtml(s){
+    if(!s) return '';
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  // توليد فئات فريدة
+  function uniqueCategories(){
+    const set = new Set(products.map(p => p.category || 'عام'));
+    return ['الكل', ...Array.from(set)];
+  }
+
+  // عرض التصنيفات
+  function renderCategories(){
+    catsEl.innerHTML = '';
+    uniqueCategories().forEach(cat=>{
+      const btn = document.createElement('button');
+      btn.className = 'icon-btn';
+      btn.textContent = cat;
+      btn.type = 'button';
+      btn.onclick = ()=>{ filterByCategory(cat); };
+      catsEl.appendChild(btn);
+    });
+  }
+
+  let activeCat = 'الكل';
+  function filterByCategory(cat){
+    activeCat = cat;
+    renderProducts();
+  }
+
+  // سلايدر العروض (أحدث 3 منتجات)
+  function renderSlider(){
+    sliderEl.innerHTML = '';
+    const list = products.slice(0,3);
+    list.forEach(p=>{
+      const el = document.createElement('div');
+      el.style.display = 'flex';
+      el.style.gap = '8px';
+      el.innerHTML = `<img src="${escapeHtml(p.cover)}" alt="${escapeHtml(p.title)}" style="width:80px;height:60px;object-fit:cover;border-radius:8px"><div style="flex:1"><strong style="color:var(--gold)">${escapeHtml(p.title)}</strong><div style="font-size:13px;color:rgba(255,255,255,0.7)">${escapeHtml(p.desc)}</div></div>`;
+      sliderEl.appendChild(el);
+    });
+  }
+
+  // عرض المنتجات
+  function renderProducts(){
+    const q = (searchEl.value || '').trim().toLowerCase();
+    const filtered = products.filter(p=>{
+      const text = (p.title + ' ' + (p.desc||'') + ' ' + (p.category||'')).toLowerCase();
+      const matchQ = !q || text.includes(q);
+      const matchCat = activeCat === 'الكل' || (p.category||'عام') === activeCat;
+      return matchQ && matchCat;
+    });
+
+    productsEl.innerHTML = '';
+    filtered.forEach(p=>{
+      const card = document.createElement('article');
+      card.className = 'card';
+      const imgSrc = p.cover || ('https://picsum.photos/seed/' + p.id + '/800/500');
+      card.innerHTML = `
+        <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(p.title)}">
+        <div class="body">
+          <h3>${escapeHtml(p.title)}</h3>
+          <div class="meta">${escapeHtml(p.category || 'عام')}</div>
+          <div style="color:rgba(255,255,255,0.75);font-size:14px">${escapeHtml(p.desc || '')}</div>
+          <div style="display:flex;gap:8px;margin-top:8px" class="actions">
+            <button class="primary" type="button" data-file="${escapeHtml(p.file||'#')}" aria-label="عرض ${escapeHtml(p.title)}">عرض / تحميل</button>
+            <button class="icon-btn" type="button" data-id="${p.id}" aria-label="أضف ${escapeHtml(p.title)}">أضف للعربة — <span style='color:var(--gold);font-weight:800'>${p.price}$</span></button>
+          </div>
+        </div>`;
+      productsEl.appendChild(card);
+    });
+
+    prodCountEl.textContent = filtered.length;
+    resultCountEl.textContent = filtered.length;
+    attachProductHandlers(); // تأكد من تفعيل الأزرار بعد الإنشاء
+    saveState();
+  }
+
+  // ربط زر عرض / إضافة بعد إنشاء العناصر
+  function attachProductHandlers(){
+    // أزرار العرض
+    productsEl.querySelectorAll('button[aria-label^="عرض"]').forEach(btn=>{
+      btn.onclick = ()=> openFileSafe(btn.getAttribute('data-file'));
+    });
+    // أزرار الإضافة
+    productsEl.querySelectorAll('button[aria-label^="أضف"]').forEach(btn=>{
+      btn.onclick = ()=> addToCart(Number(btn.getAttribute('data-id')));
+    });
+  }
+
+  // فتح الرابط بأمان
+  function openFileSafe(url){
+    try {
+      if(!url || url === '#' ) { alert('لا يوجد ملف متاح لهذا المنتج'); return; }
+      window.open(url, '_blank');
+    } catch(e){
+      alert('تعذّر فتح الملف');
+    }
+  }
+
+  // ==== سلة التسوق ====
+  function updateCartUI(){
+    cartItemsEl.innerHTML = '';
+    let total = 0;
+    cart.forEach(item=>{
+      total += item.price * item.qty;
+      const row = document.createElement('div');
+      row.className = 'cart-item';
+      row.innerHTML = `<img src="${escapeHtml(item.cover || 'https://picsum.photos/seed/'+item.id+'/200/150')}" alt="${escapeHtml(item.title)}"><div style="flex:1"><strong>${escapeHtml(item.title)}</strong><div style="font-size:13px;color:rgba(255,255,255,0.8)">${item.qty} × ${item.price}$</div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="icon-btn" type="button" data-id="${item.id}" data-op="minus">−</button>
+          <button class="icon-btn" type="button" data-id="${item.id}" data-op="plus">+</button>
+          <button class="icon-btn" type="button" data-id="${item.id}" data-op="remove">حذف</button>
+        </div>`;
+      cartItemsEl.appendChild(row);
+    });
+    cartTotalEl.textContent = total.toFixed(2) + '$';
+    // ربط أزرار العربة
+    cartItemsEl.querySelectorAll('button[data-op]').forEach(btn=>{
+      btn.onclick = ()=> {
+        const id = Number(btn.getAttribute('data-id'));
+        const op = btn.getAttribute('data-op');
+        if(op === 'minus') changeQty(id, -1);
+        if(op === 'plus') changeQty(id, 1);
+        if(op === 'remove') removeFromCart(id);
+      };
+    });
+    saveState();
+  }
+
+  function addToCart(id){
+    const prod = products.find(p=>p.id === id);
+    if(!prod){ alert('خطأ: المنتج غير موجود'); return; }
+    const found = cart.find(i=>i.id === id);
+    if(found) found.qty++;
+    else cart.push({ id: prod.id, title: prod.title, price: prod.price, cover: prod.cover, qty: 1 });
+    updateCartUI();
+    alert('أضيف إلى العربة');
+  }
+
+  function changeQty(id, delta){
+    cart = cart.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i );
+    updateCartUI();
+  }
+
+  function removeFromCart(id){
+    cart = cart.filter(i => i.id !== id);
+    updateCartUI();
+  }
+
+  // أحداث زر فتح/اغلاق العربة
+  openCartBtn.addEventListener('click', ()=> {
+    const show = cartDrawer.classList.toggle('show');
+    cartDrawer.setAttribute('aria-hidden', String(!show));
+  });
+  closeCartBtn.addEventListener('click', ()=> { cartDrawer.classList.remove('show'); cartDrawer.setAttribute('aria-hidden','true'); });
+
+  document.getElementById('checkout').addEventListener('click', ()=>{
+    if(cart.length === 0){ alert('العربة فارغة'); return; }
+    const order = { id: Date.now(), items: cart, total: cart.reduce((s,i)=>s + i.price * i.qty,0), date: new Date().toLocaleString() };
+    orders.unshift(order);
+    cart = [];
+    updateCartUI();
+    saveState();
+    alert('تم تسجيل الطلب محلياً (نسخة تجريبية)');
+    cartDrawer.classList.remove('show');
+  });
+
+  // ==== لوحة الإدارة (مخفيّة) ====
+  let logoClicks = 0, clickTimer = null;
+  logo.addEventListener('click', ()=>{
+    logoClicks++;
+    if(clickTimer) clearTimeout(clickTimer);
+    clickTimer = setTimeout(()=>{ logoClicks = 0; }, 2000);
+    if(logoClicks >= 5){ logoClicks = 0; openAdmin(); }
+  });
+
+  function openAdmin(){
+    admList.innerHTML = '';
+    adminModal.classList.add('show');
+    adminModal.setAttribute('aria-hidden','false');
+    renderAdminList();
+  }
+
+  admClose.addEventListener('click', ()=> {
+                                                                                    
